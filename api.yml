@@ -1,0 +1,140 @@
+# This is the OpenAPI specification for your service. It is used to generate the client code.
+# To generate the server code, use the Gradle task `openApiGenerate`. The
+# generated code will be placed in `build/generate-resources/main`.
+#
+# We will evaluate you based on how well you design your API.
+# 1. How well it follows REST principles.
+# 2. How easy it is to understand and use.
+#
+# References
+# 1. https://swagger.io/specification/
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: User Service
+  license:
+    name: MIT
+servers:
+  - url: http://localhost
+paths:
+  /register:
+    post:
+      summary: User Register
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegistrationRequest"
+      responses:
+        '201':
+          description: Registration success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrationResponse"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistrationErrResponse"
+  /login:
+    post:
+      summary: User Login
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Authorization:
+              description: JWT token for authentication
+              schema:
+                type: string
+        '400':
+          description: Bad request - invalid credentials
+
+      security:
+        - jwtAuth: []
+
+components:
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HelloResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    RegistrationErrResponse:
+      type: object
+      properties:
+        message:
+          type: array
+          items:
+            type: string
+    RegistrationResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          format: int64
+    RegistrationRequest:
+      type: object
+      properties:
+        phone_number:
+          type: string
+          pattern: '^\\+62[0-9]{8,11}$'
+          description: Phone numbers must start with "+62" and have 10 to 13 digits.
+        full_name:
+          type: string
+          minLength: 3
+          maxLength: 60
+          description: Full name must be at minimum 3 characters and maximum 60 characters.
+        password:
+          type: string
+          minLength: 6
+          maxLength: 64
+          pattern: '^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).*$'
+          description: Passwords must have at least 6 characters, including 1 capital letter, 1 number, and 1 special character.
+      required:
+        - phone_number
+        - full_name
+        - password
+    LoginRequest:
+      type: object
+      properties:
+        phone_number:
+          type: string
+          pattern: '^\\+62[0-9]{8,11}$'
+          description: Phone numbers must start with "+62" and have 10 to 13 digits.
+        password:
+          type: string
+          minLength: 6
+          maxLength: 64
+          pattern: '^(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).*$'
+          description: Passwords must have at least 6 characters, including 1 capital letter, 1 number, and 1 special character.
+      required:
+        - phone_number
+        - password
+
