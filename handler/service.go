@@ -11,7 +11,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Service struct {
+type Service interface {
+	Register(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string)
+}
+
+type service struct {
 	Repository repository.RepositoryInterface
 	Validator  Validator
 }
@@ -21,11 +25,11 @@ type NewServiceOptions struct {
 	Validator  Validator
 }
 
-func NewService(opts NewServiceOptions) *Service {
-	return &Service{opts.Repository, opts.Validator}
+func NewService(opts NewServiceOptions) *service {
+	return &service{opts.Repository, opts.Validator}
 }
 
-func (s *Service) Register(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string) {
+func (s *service) Register(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string) {
 	errs := []string{}
 	if err := s.Validator.IsValidPhoneNumber(regRequest.PhoneNumber); err != nil {
 		errs = append(errs, fmt.Sprintf("phone_number: %s", err.Error()))

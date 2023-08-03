@@ -34,7 +34,7 @@ func (m *mockRepository) Register(ctx context.Context, regRequest generated.Regi
 
 var _ = ginkgo.Describe("Service", func() {
 	var (
-		service *Service
+		service *service
 		ctx     context.Context
 		regReq  *generated.RegistrationRequest
 	)

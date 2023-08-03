@@ -23,5 +23,5 @@ func NewServer(opts NewServerOptions) *Server {
 	}
 
 	service := NewService(optsService)
-	return &Server{opts.Repository, *service}
+	return &Server{opts.Repository, service}
 }
