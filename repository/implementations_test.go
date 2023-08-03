@@ -20,7 +20,7 @@ func TestRepository(t *testing.T) {
 var _ = ginkgo.Describe("Repository", func() {
 	var (
 		db   *sql.DB
-		repo *Repository // Replace "YourRepository" with the actual name of your repository struct
+		repo *Repository
 		mock sqlmock.Sqlmock
 		ctx  context.Context
 	)
@@ -79,14 +79,15 @@ var _ = ginkgo.Describe("Repository", func() {
 	})
 
 	ginkgo.Describe("Register", func() {
+		regRequest := generated.RegistrationRequest{
+			FullName:    "John Doe",
+			PhoneNumber: "1234567890",
+			Password:    "securePassword",
+		}
+		salt := "randomSalt"
+		userID := "generatedUserID"
+
 		ginkgo.It("should register a new user", func() {
-			regRequest := generated.RegistrationRequest{
-				FullName:    "John Doe",
-				PhoneNumber: "1234567890",
-				Password:    "securePassword",
-			}
-			salt := "randomSalt"
-			userID := "generatedUserID"
 
 			// Expect the first query for inserting user data and returning the user ID
 			rows := sqlmock.NewRows([]string{"id"}).AddRow(userID)
@@ -108,13 +109,6 @@ var _ = ginkgo.Describe("Repository", func() {
 		})
 
 		ginkgo.It("should handle transaction rollback on error", func() {
-			regRequest := generated.RegistrationRequest{
-				FullName:    "John Doe",
-				PhoneNumber: "1234567890",
-				Password:    "securePassword",
-			}
-			salt := "randomSalt"
-
 			mock.ExpectBegin()
 			mock.ExpectQuery("^INSERT INTO public.user \\(full_name, phone_number\\) VALUES \\(\\$1, \\$2\\) RETURNING id$").
 				WithArgs(regRequest.FullName, regRequest.PhoneNumber).
@@ -128,13 +122,6 @@ var _ = ginkgo.Describe("Repository", func() {
 
 		ginkgo.Context("when Begin returns an error", func() {
 			ginkgo.It("should return the error", func() {
-				regRequest := generated.RegistrationRequest{
-					FullName:    "John Doe",
-					PhoneNumber: "1234567890",
-					Password:    "securePassword",
-				}
-				salt := "randomSalt"
-
 				mock.ExpectBegin().WillReturnError(errors.New("begin error"))
 
 				_, err := repo.Register(ctx, regRequest, salt)
@@ -145,13 +132,6 @@ var _ = ginkgo.Describe("Repository", func() {
 
 		ginkgo.Context("when Exec returns an error", func() {
 			ginkgo.It("should return the error and rollback the transaction", func() {
-				regRequest := generated.RegistrationRequest{
-					FullName:    "John Doe",
-					PhoneNumber: "1234567890",
-					Password:    "securePassword",
-				}
-				salt := "randomSalt"
-
 				mock.ExpectBegin()
 
 				mock.ExpectQuery("^INSERT INTO public.user \\(full_name, phone_number\\) VALUES \\(\\$1, \\$2\\) RETURNING id$").
@@ -172,13 +152,6 @@ var _ = ginkgo.Describe("Repository", func() {
 
 		ginkgo.Context("when Commit returns an error", func() {
 			ginkgo.It("should return the error and rollback the transaction", func() {
-				regRequest := generated.RegistrationRequest{
-					FullName:    "John Doe",
-					PhoneNumber: "1234567890",
-					Password:    "securePassword",
-				}
-				salt := "randomSalt"
-
 				mock.ExpectBegin()
 
 				mock.ExpectQuery("^INSERT INTO public.user \\(full_name, phone_number\\) VALUES \\(\\$1, \\$2\\) RETURNING id$").
