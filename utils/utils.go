@@ -60,32 +60,6 @@ func GenerateJWTToken(claims jwt.MapClaims) (string, error) {
 	return tokenString, nil
 }
 
-func ValidateJWTToken(tokenString string) (*jwt.Token, error) {
-	var publicKeyPath = os.Getenv("PUBLIC_KEY")
-	publicKeyBytes, err := ioutil.ReadFile(publicKeyPath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read public key file: %v", err)
-	}
-
-	publicKey, err := jwt.ParseRSAPublicKeyFromPEM(publicKeyBytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse public key: %v", err)
-	}
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return publicKey, nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return token, nil
-}
-
 func ExtractJWTToken(ctx echo.Context) (string, error) {
 	authHeader := ctx.Request().Header.Get("Authorization")
 	if authHeader == "" {

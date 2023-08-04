@@ -15,7 +15,7 @@ import (
 type mockService struct {
 	RegisterFunc   func(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string)
 	LoginFunc      func(context.Context, *generated.LoginRequest) (string, error)
-	GetProfilefunc func(ctx context.Context, userID string) (generated.UserProfile, error)
+	GetProfilefunc func(ctx context.Context, token string) (generated.UserProfile, error)
 }
 
 func NewMockService() mockService {
@@ -40,8 +40,8 @@ func (m *mockService) Login(ctx context.Context, loginRequest *generated.LoginRe
 	return m.LoginFunc(ctx, loginRequest)
 }
 
-func (m *mockService) GetUserProfile(ctx context.Context, userID string) (generated.UserProfile, error) {
-	return m.GetProfilefunc(ctx, userID)
+func (m *mockService) GetUserProfile(ctx context.Context, token string) (generated.UserProfile, error) {
+	return m.GetProfilefunc(ctx, token)
 }
 
 var _ = ginkgo.Describe("endpoints", func() {

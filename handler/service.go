@@ -7,12 +7,13 @@ import (
 	"github.com/SawitProRecruitment/UserService/generated"
 	"github.com/SawitProRecruitment/UserService/repository"
 	"github.com/SawitProRecruitment/UserService/utils"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 type Service interface {
 	Register(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string)
 	Login(ctx context.Context, loginRequest *generated.LoginRequest) (string, error)
-	GetUserProfile(ctx context.Context, userID string) (generated.UserProfile, error)
+	GetUserProfile(ctx context.Context, token string) (generated.UserProfile, error)
 }
 
 type service struct {
@@ -78,6 +79,17 @@ func (s *service) Login(ctx context.Context, loginRequest *generated.LoginReques
 	return jwtToken, nil
 }
 
-func (s *service) GetUserProfile(ctx context.Context, userID string) (generated.UserProfile, error) {
+func (s *service) GetUserProfile(ctx context.Context, token string) (generated.UserProfile, error) {
+	jwtToken, err := s.Validator.ValidateJWTToken(token)
+	if err != nil {
+		return generated.UserProfile{}, err
+	}
+
+	claims, ok := jwtToken.Claims.(jwt.MapClaims)
+	if !ok {
+		return generated.UserProfile{}, err
+	}
+
+	userID := claims["user_id"].(string)
 	return s.Repository.GetUserProfile(ctx, userID)
 }
