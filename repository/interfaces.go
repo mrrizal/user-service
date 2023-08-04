@@ -13,4 +13,5 @@ import (
 type RepositoryInterface interface {
 	IsPhoneNumberExists(ctx context.Context, phoneNumber string) (bool, error)
 	Register(ctx context.Context, regRequest generated.RegistrationRequest, salt string) (string, error)
+	Login(ctx context.Context, loginRequest generated.LoginRequest) (string, error)
 }

@@ -50,6 +50,21 @@ func (mr *MockRepositoryInterfaceMockRecorder) IsPhoneNumberExists(ctx, phoneNum
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsPhoneNumberExists", reflect.TypeOf((*MockRepositoryInterface)(nil).IsPhoneNumberExists), ctx, phoneNumber)
 }
 
+// Login mocks base method.
+func (m *MockRepositoryInterface) Login(ctx context.Context, loginRequest generated.LoginRequest) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Login", ctx, loginRequest)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Login indicates an expected call of Login.
+func (mr *MockRepositoryInterfaceMockRecorder) Login(ctx, loginRequest interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockRepositoryInterface)(nil).Login), ctx, loginRequest)
+}
+
 // Register mocks base method.
 func (m *MockRepositoryInterface) Register(ctx context.Context, regRequest generated.RegistrationRequest, salt string) (string, error) {
 	m.ctrl.T.Helper()

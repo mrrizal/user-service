@@ -96,6 +96,10 @@ var _ = ginkgo.Describe("Repository", func() {
 				WithArgs(regRequest.FullName, regRequest.PhoneNumber).
 				WillReturnRows(rows)
 
+			mock.ExpectExec("^INSERT INTO public.login \\(user_id, success_login\\) VALUES \\(\\$1, \\$2\\)").
+				WithArgs(userID, 0).
+				WillReturnResult(sqlmock.NewResult(1, 1))
+
 			// Expect the second query for inserting password data
 			mock.ExpectExec("^INSERT INTO public.password \\(user_id, password, salt\\) VALUES \\(\\$1, \\$2, \\$3\\)$").
 				WithArgs(userID, regRequest.Password, salt).
@@ -138,6 +142,32 @@ var _ = ginkgo.Describe("Repository", func() {
 					WithArgs(regRequest.FullName, regRequest.PhoneNumber).
 					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow("generatedUserID"))
 
+				mock.ExpectExec("^INSERT INTO public.login \\(user_id, success_login\\) VALUES \\(\\$1, \\$2\\)").
+					WithArgs(userID, 0).
+					WillReturnError(errors.New("exec error"))
+
+				mock.ExpectExec("^INSERT INTO public.password \\(user_id, password, salt\\) VALUES \\(\\$1, \\$2, \\$3\\)$").
+					WithArgs("generatedUserID", regRequest.Password, salt).
+					WillReturnError(errors.New("exec error"))
+
+				mock.ExpectRollback()
+
+				_, err := repo.Register(ctx, regRequest, salt)
+				gomega.Expect(err).To(gomega.HaveOccurred())
+				gomega.Expect(err.Error()).To(gomega.ContainSubstring("exec error"))
+			})
+
+			ginkgo.It("should return the error and rollback the transaction", func() {
+				mock.ExpectBegin()
+
+				mock.ExpectQuery("^INSERT INTO public.user \\(full_name, phone_number\\) VALUES \\(\\$1, \\$2\\) RETURNING id$").
+					WithArgs(regRequest.FullName, regRequest.PhoneNumber).
+					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow("generatedUserID"))
+
+				mock.ExpectExec("^INSERT INTO public.login \\(user_id, success_login\\) VALUES \\(\\$1, \\$2\\)").
+					WithArgs(userID, 0).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+
 				mock.ExpectExec("^INSERT INTO public.password \\(user_id, password, salt\\) VALUES \\(\\$1, \\$2, \\$3\\)$").
 					WithArgs("generatedUserID", regRequest.Password, salt).
 					WillReturnError(errors.New("exec error"))
@@ -157,6 +187,10 @@ var _ = ginkgo.Describe("Repository", func() {
 				mock.ExpectQuery("^INSERT INTO public.user \\(full_name, phone_number\\) VALUES \\(\\$1, \\$2\\) RETURNING id$").
 					WithArgs(regRequest.FullName, regRequest.PhoneNumber).
 					WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow("generatedUserID"))
+
+				mock.ExpectExec("^INSERT INTO public.login \\(user_id, success_login\\) VALUES \\(\\$1, \\$2\\)").
+					WithArgs(userID, 0).
+					WillReturnResult(sqlmock.NewResult(1, 1))
 
 				mock.ExpectExec("^INSERT INTO public.password \\(user_id, password, salt\\) VALUES \\(\\$1, \\$2, \\$3\\)$").
 					WithArgs("generatedUserID", regRequest.Password, salt).

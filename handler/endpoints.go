@@ -25,5 +25,16 @@ func (s *Server) Register(ctx echo.Context) error {
 }
 
 func (s *Server) Login(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, "")
+	var loginRequest generated.LoginRequest
+	if err := ctx.Bind(&loginRequest); err != nil {
+		errResp := generated.ErrorResponse{Message: "Bad Request"}
+		return ctx.JSON(http.StatusBadRequest, errResp)
+	}
+
+	token, err := s.Service.Login(ctx.Request().Context(), &loginRequest)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, generated.ErrorResponse{Message: err.Error()})
+	}
+	expireIn := "24 hours"
+	return ctx.JSON(http.StatusOK, generated.LoginResponse{Token: &token, ExpireIn: &expireIn})
 }

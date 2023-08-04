@@ -58,9 +58,17 @@ paths:
               description: JWT token for authentication
               schema:
                 type: string
-        '400':
-          description: Bad request - invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
 
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
       security:
         - jwtAuth: []
 
@@ -137,4 +145,10 @@ components:
       required:
         - phone_number
         - password
-
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        expire_in:
+          type: string

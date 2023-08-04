@@ -3,16 +3,15 @@ package handler
 import (
 	"context"
 	"fmt"
-	"math/rand"
-	"time"
 
 	"github.com/SawitProRecruitment/UserService/generated"
 	"github.com/SawitProRecruitment/UserService/repository"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/SawitProRecruitment/UserService/utils"
 )
 
 type Service interface {
 	Register(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string)
+	Login(ctx context.Context, loginRequest *generated.LoginRequest) (string, error)
 }
 
 type service struct {
@@ -47,8 +46,8 @@ func (s *service) Register(ctx context.Context, regRequest *generated.Registrati
 		return "", errs
 	}
 
-	salt := generateRandomSalt()
-	temp, err := hashingPassword(regRequest.Password, salt)
+	salt := utils.GenerateRandomSalt()
+	temp, err := utils.HashingPassword(regRequest.Password, salt)
 	if err != nil {
 		errs = append(errs, err.Error())
 		return "", errs
@@ -62,24 +61,18 @@ func (s *service) Register(ctx context.Context, regRequest *generated.Registrati
 	return userID, errs
 }
 
-func hashingPassword(password, salt string) (string, error) {
-	passwordWithSalt := []byte(password + salt)
-	hashedPassword, err := bcrypt.GenerateFromPassword(passwordWithSalt, bcrypt.DefaultCost)
+func (s *service) Login(ctx context.Context, loginRequest *generated.LoginRequest) (string, error) {
+	data := make(map[string]interface{})
+	userID, err := s.Repository.Login(ctx, *loginRequest)
 	if err != nil {
 		return "", err
 	}
-	return string(hashedPassword), nil
-}
 
-func generateRandomSalt() string {
-	const saltLength = 16
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	rand.Seed(time.Now().UnixNano())
-
-	salt := make([]byte, saltLength)
-	for i := range salt {
-		salt[i] = charset[rand.Intn(len(charset))]
+	data["user_id"] = userID
+	data["phone_number"] = loginRequest.PhoneNumber
+	jwtToken, err := utils.GenerateJWTToken(data)
+	if err != nil {
+		return "", err
 	}
-
-	return string(salt)
+	return jwtToken, nil
 }

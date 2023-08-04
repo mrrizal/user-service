@@ -11,6 +11,7 @@ import (
 type mockRepository struct {
 	isPhoneNumberExistsFunc func(context.Context, string) (bool, error)
 	registerFunc            func(ctx context.Context, regRequest generated.RegistrationRequest, salt string) (string, error)
+	loginFunc               func(ctx context.Context, loginRequest generated.LoginRequest) (string, error)
 }
 
 func NewMockRepository() mockRepository {
@@ -30,6 +31,10 @@ func (m *mockRepository) IsPhoneNumberExists(ctx context.Context, phoneNumber st
 
 func (m *mockRepository) Register(ctx context.Context, regRequest generated.RegistrationRequest, salt string) (string, error) {
 	return m.registerFunc(ctx, regRequest, salt)
+}
+
+func (m *mockRepository) Login(ctx context.Context, loginRequest generated.LoginRequest) (string, error) {
+	return m.loginFunc(ctx, loginRequest)
 }
 
 var _ = ginkgo.Describe("Service", func() {
