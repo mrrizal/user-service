@@ -13,6 +13,8 @@ type mockRepository struct {
 	registerFunc            func(ctx context.Context, regRequest generated.RegistrationRequest, salt string) (string, error)
 	loginFunc               func(ctx context.Context, loginRequest generated.LoginRequest) (string, error)
 	getProfileFunc          func(ctx context.Context, userID string) (generated.UserProfile, error)
+	updateProfileFunc       func(ctx context.Context, updateUserProfileRequest map[string]string,
+		userID string) (generated.UserProfile, error)
 }
 
 func NewMockRepository() mockRepository {
@@ -43,6 +45,11 @@ func (m *mockRepository) Login(ctx context.Context, loginRequest generated.Login
 
 func (m *mockRepository) GetUserProfile(ctx context.Context, userID string) (generated.UserProfile, error) {
 	return m.getProfileFunc(ctx, userID)
+}
+
+func (m *mockRepository) UpdateUserProfile(ctx context.Context,
+	updateUserProfileRequest map[string]string, userID string) (generated.UserProfile, error) {
+	return m.updateProfileFunc(ctx, updateUserProfileRequest, userID)
 }
 
 var _ = ginkgo.Describe("Service", func() {

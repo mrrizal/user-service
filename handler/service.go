@@ -109,7 +109,23 @@ func (s *service) UpdateUserProfile(ctx context.Context, updateUserProfileReques
 	}
 
 	userID := claims["user_id"].(string)
-	fmt.Println(userID)
-	fmt.Println(updateUserProfileRequest)
-	return generated.UserProfile{}, nil
+
+	updateUserProfileRequestMap := make(map[string]string)
+	if updateUserProfileRequest.FullName != nil {
+		if err := s.Validator.IsValidFullName(*updateUserProfileRequest.FullName); err == nil {
+			updateUserProfileRequestMap["full_name"] = *updateUserProfileRequest.FullName
+		} else {
+			return generated.UserProfile{}, err
+		}
+	}
+
+	if updateUserProfileRequest.PhoneNumber != nil {
+		if err := s.Validator.IsValidPhoneNumber(*updateUserProfileRequest.PhoneNumber); err == nil {
+			updateUserProfileRequestMap["phone_number"] = *updateUserProfileRequest.PhoneNumber
+		} else {
+			return generated.UserProfile{}, err
+		}
+	}
+
+	return s.Repository.UpdateUserProfile(ctx, updateUserProfileRequestMap, userID)
 }

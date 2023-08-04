@@ -15,4 +15,6 @@ type RepositoryInterface interface {
 	Register(ctx context.Context, regRequest generated.RegistrationRequest, salt string) (string, error)
 	Login(ctx context.Context, loginRequest generated.LoginRequest) (string, error)
 	GetUserProfile(ctx context.Context, userID string) (generated.UserProfile, error)
+	UpdateUserProfile(ctx context.Context,
+		updateUserProfileRequest map[string]string, userID string) (generated.UserProfile, error)
 }

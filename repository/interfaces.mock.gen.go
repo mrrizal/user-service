@@ -94,3 +94,18 @@ func (mr *MockRepositoryInterfaceMockRecorder) Register(ctx, regRequest, salt in
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Register", reflect.TypeOf((*MockRepositoryInterface)(nil).Register), ctx, regRequest, salt)
 }
+
+// UpdateUserProfile mocks base method.
+func (m *MockRepositoryInterface) UpdateUserProfile(ctx context.Context, updateUserProfileRequest map[string]string, userID string) (generated.UserProfile, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserProfile", ctx, updateUserProfileRequest, userID)
+	ret0, _ := ret[0].(generated.UserProfile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateUserProfile indicates an expected call of UpdateUserProfile.
+func (mr *MockRepositoryInterfaceMockRecorder) UpdateUserProfile(ctx, updateUserProfileRequest, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserProfile", reflect.TypeOf((*MockRepositoryInterface)(nil).UpdateUserProfile), ctx, updateUserProfileRequest, userID)
+}

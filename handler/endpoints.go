@@ -70,7 +70,7 @@ func (s *Server) UpdateProfile(ctx echo.Context) error {
 	userProfile, err := s.Service.UpdateUserProfile(ctx.Request().Context(), updateUserProfileRequest, token)
 	if err != nil {
 		status := http.StatusBadRequest
-		if strings.Contains(err.Error(), "Phone number already exists") {
+		if strings.Contains(err.Error(), "Phone numbers already exists.") {
 			status = http.StatusConflict
 		}
 		return ctx.JSON(status, generated.ErrorResponse{Message: err.Error()})

@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/SawitProRecruitment/UserService/generated"
 	"golang.org/x/crypto/bcrypt"
@@ -105,4 +107,25 @@ func (r *Repository) GetUserProfile(ctx context.Context, userID string) (generat
 		return generated.UserProfile{}, err
 	}
 	return userProfile, nil
+}
+
+func (r *Repository) UpdateUserProfile(ctx context.Context,
+	updateUserProfileRequest map[string]string, userID string) (generated.UserProfile, error) {
+	if len(updateUserProfileRequest) == 0 {
+		return r.GetUserProfile(ctx, userID)
+	}
+
+	sqlStmt := "UPDATE public.user SET "
+	for key, value := range updateUserProfileRequest {
+		sqlStmt += fmt.Sprintf("%s = '%s', ", key, value)
+	}
+	sqlStmt = strings.TrimSuffix(sqlStmt, ", ")
+	sqlStmt += " WHERE id = $1"
+
+	_, err := r.Db.ExecContext(ctx, sqlStmt, userID)
+	if err != nil {
+		return generated.UserProfile{}, err
+	}
+
+	return r.GetUserProfile(ctx, userID)
 }
