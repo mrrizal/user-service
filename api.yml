@@ -71,6 +71,26 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
       security:
         - jwtAuth: []
+  /profile:
+    get:
+      summary: Get Profile
+      operationId: get profile
+      responses:
+        '200':
+          description: Get profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        '403':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      security:
+        - jwtAuth: []
+
 
 components:
   securitySchemes:
@@ -151,4 +171,11 @@ components:
         token:
           type: string
         expire_in:
+          type: string
+    UserProfile:
+      type: object
+      properties:
+        full_name:
+          type: string
+        phone_number:
           type: string

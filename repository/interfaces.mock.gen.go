@@ -35,6 +35,21 @@ func (m *MockRepositoryInterface) EXPECT() *MockRepositoryInterfaceMockRecorder 
 	return m.recorder
 }
 
+// GetUserProfile mocks base method.
+func (m *MockRepositoryInterface) GetUserProfile(ctx context.Context, userID string) (generated.UserProfile, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserProfile", ctx, userID)
+	ret0, _ := ret[0].(generated.UserProfile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserProfile indicates an expected call of GetUserProfile.
+func (mr *MockRepositoryInterfaceMockRecorder) GetUserProfile(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserProfile", reflect.TypeOf((*MockRepositoryInterface)(nil).GetUserProfile), ctx, userID)
+}
+
 // IsPhoneNumberExists mocks base method.
 func (m *MockRepositoryInterface) IsPhoneNumberExists(ctx context.Context, phoneNumber string) (bool, error) {
 	m.ctrl.T.Helper()

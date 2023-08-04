@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/SawitProRecruitment/UserService/generated"
+	"github.com/SawitProRecruitment/UserService/utils"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -37,4 +39,29 @@ func (s *Server) Login(ctx echo.Context) error {
 	}
 	expireIn := "24 hours"
 	return ctx.JSON(http.StatusOK, generated.LoginResponse{Token: &token, ExpireIn: &expireIn})
+}
+
+func (s *Server) GetProfile(ctx echo.Context) error {
+	token, err := utils.ExtractJWTToken(ctx)
+	if err != nil {
+		return ctx.JSON(http.StatusForbidden, generated.ErrorResponse{Message: err.Error()})
+	}
+
+	jwtToken, err := utils.ValidateJWTToken(token)
+	if err != nil {
+		return ctx.JSON(http.StatusForbidden, generated.ErrorResponse{Message: err.Error()})
+	}
+
+	claims, ok := jwtToken.Claims.(jwt.MapClaims)
+	if !ok {
+		return ctx.JSON(http.StatusForbidden, generated.ErrorResponse{Message: "Error accessing token"})
+	}
+
+	userID := claims["user_id"].(string)
+	userProfile, err := s.Service.GetUserProfile(ctx.Request().Context(), userID)
+	if err != nil {
+		return ctx.JSON(http.StatusForbidden, generated.ErrorResponse{Message: err.Error()})
+	}
+
+	return ctx.JSON(http.StatusOK, userProfile)
 }

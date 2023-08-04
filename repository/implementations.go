@@ -97,3 +97,12 @@ func (r *Repository) Login(ctx context.Context, loginRequest generated.LoginRequ
 
 	return userID, nil
 }
+
+func (r *Repository) GetUserProfile(ctx context.Context, userID string) (generated.UserProfile, error) {
+	var userProfile generated.UserProfile
+	sqlStmt := "SELECT full_name, phone_number FROM public.user WHERE id = $1"
+	if err := r.Db.QueryRowContext(ctx, sqlStmt, userID).Scan(&userProfile.FullName, &userProfile.PhoneNumber); err != nil {
+		return generated.UserProfile{}, err
+	}
+	return userProfile, nil
+}

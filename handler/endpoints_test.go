@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -14,15 +13,23 @@ import (
 )
 
 type mockService struct {
-	RegisterFunc func(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string)
-	LoginFunc    func(context.Context, *generated.LoginRequest) (string, error)
+	RegisterFunc   func(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string)
+	LoginFunc      func(context.Context, *generated.LoginRequest) (string, error)
+	GetProfilefunc func(ctx context.Context, userID string) (generated.UserProfile, error)
 }
 
 func NewMockService() mockService {
-	return mockService{RegisterFunc: func(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string) {
-		fmt.Println("heheheh")
-		return "", []string{}
-	}}
+	return mockService{
+		RegisterFunc: func(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string) {
+			return "", []string{}
+		},
+		LoginFunc: func(ctx context.Context, lr *generated.LoginRequest) (string, error) {
+			return "", nil
+		},
+		GetProfilefunc: func(ctx context.Context, userID string) (generated.UserProfile, error) {
+			return generated.UserProfile{}, nil
+		},
+	}
 }
 
 func (m *mockService) Register(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string) {
@@ -31,6 +38,10 @@ func (m *mockService) Register(ctx context.Context, regRequest *generated.Regist
 
 func (m *mockService) Login(ctx context.Context, loginRequest *generated.LoginRequest) (string, error) {
 	return m.LoginFunc(ctx, loginRequest)
+}
+
+func (m *mockService) GetUserProfile(ctx context.Context, userID string) (generated.UserProfile, error) {
+	return m.GetProfilefunc(ctx, userID)
 }
 
 var _ = ginkgo.Describe("endpoints", func() {

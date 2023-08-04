@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -48,7 +49,7 @@ func GenerateJWTToken(claims jwt.MapClaims) (string, error) {
 	// Set the expiration time
 	expirationTime := time.Now().Add(24 * time.Hour)
 
-	claims["exp"] = expirationTime
+	claims["exp"] = expirationTime.Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	tokenString, err := token.SignedString(privateKey)
@@ -83,4 +84,20 @@ func ValidateJWTToken(tokenString string) (*jwt.Token, error) {
 	}
 
 	return token, nil
+}
+
+func ExtractJWTToken(ctx echo.Context) (string, error) {
+	authHeader := ctx.Request().Header.Get("Authorization")
+	if authHeader == "" {
+		return "", fmt.Errorf("Authorization header is missing")
+	}
+
+	tokenString := ""
+	fmt.Sscanf(authHeader, "Bearer %s", &tokenString)
+
+	if tokenString == "" {
+		return "", fmt.Errorf("JWT token is missing")
+	}
+
+	return tokenString, nil
 }

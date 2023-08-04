@@ -12,6 +12,7 @@ type mockRepository struct {
 	isPhoneNumberExistsFunc func(context.Context, string) (bool, error)
 	registerFunc            func(ctx context.Context, regRequest generated.RegistrationRequest, salt string) (string, error)
 	loginFunc               func(ctx context.Context, loginRequest generated.LoginRequest) (string, error)
+	getProfileFunc          func(ctx context.Context, userID string) (generated.UserProfile, error)
 }
 
 func NewMockRepository() mockRepository {
@@ -21,6 +22,9 @@ func NewMockRepository() mockRepository {
 		},
 		registerFunc: func(ctx context.Context, regRequest generated.RegistrationRequest, salt string) (string, error) {
 			return "mockedUserID", nil
+		},
+		getProfileFunc: func(ctx context.Context, userID string) (generated.UserProfile, error) {
+			return generated.UserProfile{}, nil
 		},
 	}
 }
@@ -35,6 +39,10 @@ func (m *mockRepository) Register(ctx context.Context, regRequest generated.Regi
 
 func (m *mockRepository) Login(ctx context.Context, loginRequest generated.LoginRequest) (string, error) {
 	return m.loginFunc(ctx, loginRequest)
+}
+
+func (m *mockRepository) GetUserProfile(ctx context.Context, userID string) (generated.UserProfile, error) {
+	return m.getProfileFunc(ctx, userID)
 }
 
 var _ = ginkgo.Describe("Service", func() {
