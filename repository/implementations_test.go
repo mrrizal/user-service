@@ -208,6 +208,7 @@ var _ = ginkgo.Describe("Repository", func() {
 	})
 
 	ginkgo.Describe("Loging", func() {
+		utils := utils.NewUtils()
 		ginkgo.It("should return the user ID on successful login", func() {
 			password := "password"
 			salt := utils.GenerateRandomSalt()

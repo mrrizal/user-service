@@ -13,7 +13,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type Validator struct {
+type Validator interface {
+	IsValidPhoneNumber(phoneNumber string) error
+	IsValidFullName(fullName string) error
+	IsValidPassword(password string) error
+	ValidateJWTToken(tokenString string) (*jwt.Token, error)
+}
+
+type validator struct {
 	Repository repository.RepositoryInterface
 }
 
@@ -21,11 +28,11 @@ type NewValidatorOptions struct {
 	Repository repository.RepositoryInterface
 }
 
-func NewValidator(opts NewValidatorOptions) *Validator {
-	return &Validator{opts.Repository}
+func NewValidator(opts NewValidatorOptions) *validator {
+	return &validator{opts.Repository}
 }
 
-func (v *Validator) IsValidPhoneNumber(phoneNumber string) error {
+func (v *validator) IsValidPhoneNumber(phoneNumber string) error {
 	message := `Phone numbers must start with "+62" and have 10 to 13 digits.`
 	isValid := true
 	if len(phoneNumber)-3 < 10 || len(phoneNumber)-3 > 13 {
@@ -48,7 +55,7 @@ func (v *Validator) IsValidPhoneNumber(phoneNumber string) error {
 	return nil
 }
 
-func (v *Validator) IsValidFullName(fullName string) error {
+func (v *validator) IsValidFullName(fullName string) error {
 	message := "Full name must be at minimum 3 characters and maximum 60 characters."
 	if len(fullName) < 3 || len(fullName) > 60 {
 		return errors.New(message)
@@ -56,7 +63,7 @@ func (v *Validator) IsValidFullName(fullName string) error {
 	return nil
 }
 
-func (v *Validator) IsValidPassword(password string) error {
+func (v *validator) IsValidPassword(password string) error {
 	upperCaseRegex := `[A-Z]`
 	digitRegex := `\d`
 	specialCharRegex := `[^A-Za-z0-9]`
@@ -82,7 +89,7 @@ func (v *Validator) IsValidPassword(password string) error {
 	return nil
 }
 
-func (v *Validator) ValidateJWTToken(tokenString string) (*jwt.Token, error) {
+func (v *validator) ValidateJWTToken(tokenString string) (*jwt.Token, error) {
 	var publicKeyPath = os.Getenv("PUBLIC_KEY")
 	publicKeyBytes, err := ioutil.ReadFile(publicKeyPath)
 	if err != nil {

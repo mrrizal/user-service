@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/SawitProRecruitment/UserService/generated"
-	"github.com/SawitProRecruitment/UserService/utils"
 	"github.com/labstack/echo/v4"
 )
 
@@ -42,7 +41,7 @@ func (s *Server) Login(ctx echo.Context) error {
 }
 
 func (s *Server) GetProfile(ctx echo.Context) error {
-	token, err := utils.ExtractJWTToken(ctx)
+	token, err := s.Utils.ExtractJWTToken(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusForbidden, generated.ErrorResponse{Message: err.Error()})
 	}
@@ -56,7 +55,7 @@ func (s *Server) GetProfile(ctx echo.Context) error {
 }
 
 func (s *Server) UpdateProfile(ctx echo.Context) error {
-	token, err := utils.ExtractJWTToken(ctx)
+	token, err := s.Utils.ExtractJWTToken(ctx)
 	if err != nil {
 		return ctx.JSON(http.StatusForbidden, generated.ErrorResponse{Message: err.Error()})
 	}

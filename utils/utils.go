@@ -12,7 +12,20 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func HashingPassword(password, salt string) (string, error) {
+type Utils interface {
+	HashingPassword(password, salt string) (string, error)
+	GenerateRandomSalt() string
+	GenerateJWTToken(claims jwt.MapClaims) (string, error)
+	ExtractJWTToken(ctx echo.Context) (string, error)
+}
+
+type utils struct{}
+
+func NewUtils() *utils {
+	return &utils{}
+}
+
+func (u *utils) HashingPassword(password, salt string) (string, error) {
 	passwordWithSalt := []byte(password + salt)
 	hashedPassword, err := bcrypt.GenerateFromPassword(passwordWithSalt, bcrypt.DefaultCost)
 	if err != nil {
@@ -21,7 +34,7 @@ func HashingPassword(password, salt string) (string, error) {
 	return string(hashedPassword), nil
 }
 
-func GenerateRandomSalt() string {
+func (u *utils) GenerateRandomSalt() string {
 	const saltLength = 16
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	rand.Seed(time.Now().UnixNano())
@@ -34,7 +47,7 @@ func GenerateRandomSalt() string {
 	return string(salt)
 }
 
-func GenerateJWTToken(claims jwt.MapClaims) (string, error) {
+func (u *utils) GenerateJWTToken(claims jwt.MapClaims) (string, error) {
 	var privateKeyPath = os.Getenv("PRIVATE_KEY")
 	privateKeyBytes, err := ioutil.ReadFile(privateKeyPath)
 	if err != nil {
@@ -60,7 +73,7 @@ func GenerateJWTToken(claims jwt.MapClaims) (string, error) {
 	return tokenString, nil
 }
 
-func ExtractJWTToken(ctx echo.Context) (string, error) {
+func (u *utils) ExtractJWTToken(ctx echo.Context) (string, error) {
 	authHeader := ctx.Request().Header.Get("Authorization")
 	if authHeader == "" {
 		return "", fmt.Errorf("Authorization header is missing")

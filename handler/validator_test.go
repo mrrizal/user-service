@@ -12,7 +12,7 @@ import (
 
 var _ = ginkgo.Describe("Validator", func() {
 	var (
-		validator *Validator
+		validator Validator
 		ctrl      *gomock.Controller
 		mockRepo  *repository.MockRepositoryInterface
 	)

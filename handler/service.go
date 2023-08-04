@@ -21,15 +21,17 @@ type Service interface {
 type service struct {
 	Repository repository.RepositoryInterface
 	Validator  Validator
+	Utils      utils.Utils
 }
 
 type NewServiceOptions struct {
 	Repository repository.RepositoryInterface
 	Validator  Validator
+	Utils      utils.Utils
 }
 
 func NewService(opts NewServiceOptions) *service {
-	return &service{opts.Repository, opts.Validator}
+	return &service{opts.Repository, opts.Validator, opts.Utils}
 }
 
 func (s *service) Register(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string) {
@@ -50,8 +52,8 @@ func (s *service) Register(ctx context.Context, regRequest *generated.Registrati
 		return "", errs
 	}
 
-	salt := utils.GenerateRandomSalt()
-	temp, err := utils.HashingPassword(regRequest.Password, salt)
+	salt := s.Utils.GenerateRandomSalt()
+	temp, err := s.Utils.HashingPassword(regRequest.Password, salt)
 	if err != nil {
 		errs = append(errs, err.Error())
 		return "", errs
@@ -74,7 +76,7 @@ func (s *service) Login(ctx context.Context, loginRequest *generated.LoginReques
 
 	data["user_id"] = userID
 	data["phone_number"] = loginRequest.PhoneNumber
-	jwtToken, err := utils.GenerateJWTToken(data)
+	jwtToken, err := s.Utils.GenerateJWTToken(data)
 	if err != nil {
 		return "", err
 	}
