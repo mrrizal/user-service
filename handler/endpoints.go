@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/SawitProRecruitment/UserService/generated"
 	"github.com/SawitProRecruitment/UserService/utils"
@@ -51,5 +52,28 @@ func (s *Server) GetProfile(ctx echo.Context) error {
 		return ctx.JSON(http.StatusForbidden, generated.ErrorResponse{Message: err.Error()})
 	}
 
+	return ctx.JSON(http.StatusOK, userProfile)
+}
+
+func (s *Server) UpdateProfile(ctx echo.Context) error {
+	token, err := utils.ExtractJWTToken(ctx)
+	if err != nil {
+		return ctx.JSON(http.StatusForbidden, generated.ErrorResponse{Message: err.Error()})
+	}
+
+	var updateUserProfileRequest generated.UpdateUserProfileRequest
+	if err := ctx.Bind(&updateUserProfileRequest); err != nil {
+		errResp := generated.RegistrationErrResponse{Message: &[]string{"Bad Request"}}
+		return ctx.JSON(http.StatusBadRequest, errResp)
+	}
+
+	userProfile, err := s.Service.UpdateUserProfile(ctx.Request().Context(), updateUserProfileRequest, token)
+	if err != nil {
+		status := http.StatusBadRequest
+		if strings.Contains(err.Error(), "Phone number already exists") {
+			status = http.StatusConflict
+		}
+		return ctx.JSON(status, generated.ErrorResponse{Message: err.Error()})
+	}
 	return ctx.JSON(http.StatusOK, userProfile)
 }

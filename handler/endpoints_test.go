@@ -13,9 +13,11 @@ import (
 )
 
 type mockService struct {
-	RegisterFunc   func(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string)
-	LoginFunc      func(context.Context, *generated.LoginRequest) (string, error)
-	GetProfilefunc func(ctx context.Context, token string) (generated.UserProfile, error)
+	RegisterFunc          func(ctx context.Context, regRequest *generated.RegistrationRequest) (string, []string)
+	LoginFunc             func(context.Context, *generated.LoginRequest) (string, error)
+	GetProfilefunc        func(ctx context.Context, token string) (generated.UserProfile, error)
+	UpdateUserProfileFunc func(ctx context.Context,
+		updateUserProfileRequest generated.UpdateUserProfileRequest, token string) (generated.UserProfile, error)
 }
 
 func NewMockService() mockService {
@@ -27,6 +29,10 @@ func NewMockService() mockService {
 			return "", nil
 		},
 		GetProfilefunc: func(ctx context.Context, userID string) (generated.UserProfile, error) {
+			return generated.UserProfile{}, nil
+		},
+		UpdateUserProfileFunc: func(ctx context.Context,
+			updateUserProfileRequest generated.UpdateUserProfileRequest, token string) (generated.UserProfile, error) {
 			return generated.UserProfile{}, nil
 		},
 	}
@@ -42,6 +48,12 @@ func (m *mockService) Login(ctx context.Context, loginRequest *generated.LoginRe
 
 func (m *mockService) GetUserProfile(ctx context.Context, token string) (generated.UserProfile, error) {
 	return m.GetProfilefunc(ctx, token)
+}
+
+func (m *mockService) UpdateUserProfile(ctx context.Context,
+	updateUserProfileRequest generated.UpdateUserProfileRequest, token string) (generated.UserProfile, error) {
+	return m.UpdateUserProfileFunc(ctx, updateUserProfileRequest, token)
+
 }
 
 var _ = ginkgo.Describe("endpoints", func() {

@@ -90,7 +90,30 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
       security:
         - jwtAuth: []
-
+    patch:
+      summary: Update Profile
+      operationId: update profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserProfileRequest"
+      responses:
+        '200':
+          description: Update profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        '403':
+          description: Invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      security:
+        - jwtAuth: []
 
 components:
   securitySchemes:
@@ -179,3 +202,15 @@ components:
           type: string
         phone_number:
           type: string
+    UpdateUserProfileRequest:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 3
+          maxLength: 60
+          description: Full name must be at minimum 3 characters and maximum 60 characters.
+        phone_number:
+          type: string
+          pattern: '^\\+62[0-9]{8,11}$'
+          description: Phone numbers must start with "+62" and have 10 to 13 digits.
